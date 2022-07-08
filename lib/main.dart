@@ -1,397 +1,124 @@
-import 'package:adequate_travel_app/login.dart';
-import 'package:adequate_travel_app/signup.dart';
+import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'main_screen.dart';
+import 'package:image/image.dart' as Images;
+import 'package:http/http.dart' as http;
 
-
-
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      home: MyHomePage(),
       debugShowCheckedModeBanner: false,
-      home: FirstPage(),
-
     );
-    // Theme(
-    //   data: ThemeData(
-    //     accentColor: mainColor,
-    //   ),
-    //   child: FloatingActionButton(
-    //     onPressed: () {},
-    //     child: Icon(Icons.person),
-    //   ),
-    // );
   }
 }
 
-class FirstPage extends StatefulWidget {
+class TestPage extends StatefulWidget {
   @override
-  _FirstPageState createState() => _FirstPageState();
+  State<StatefulWidget> createState() {
+    return TestPageState();
+  }
 }
 
-class _FirstPageState extends State<FirstPage>{
+class TestPageState extends State<TestPage> {
+  Set<Marker> markers_ = {};
+  int refreshFlag = 1;
 
-  Widget _buildLogo() {
+  Future<List<int>> makeReceiptImage(pf) async {
+    var data = await http.get(Uri.parse(
+        'https://i.insider.com/5c16ac5bdde8676d8d340d02?width=1101&format=jpeg'));
+    ByteData imageData;
+    List<int> bytes = data.bodyBytes;
+    var avatarImage = Images.decodeImage(bytes);
 
+    imageData = await rootBundle.load('assets/images/marker.png');
+    bytes = Uint8List.view(imageData.buffer);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-    );
+    var markerImage = Images.decodeImage(bytes);
+    avatarImage = Images.copyResize(avatarImage, width: 500, height: 360);
+    var radius = 150;
+    int originX = avatarImage.width ~/ 2, originY = avatarImage.height ~/ 2;
+    for (int y = -radius; y <= radius; y++)
+      for (int x = -radius; x <= radius; x++)
+        if (x * x + y * y <= radius * radius)
+          markerImage.setPixelSafe(originX + x + 8, originY + y + 10,
+              avatarImage.getPixelSafe(originX + x, originY + y));
+
+    markerImage = Images.copyResize(markerImage, width: 70, height: 70);
+    return Images.encodePng(markerImage);
   }
 
-
-
-
-
-  Widget _buildForgetPasswordButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: <Widget>[
-        FlatButton(
-          onPressed: () {},
-          child: Text("Forgot Password?"),
-        ),
-      ],
-    );
-  }
-  Widget _facebookBtn(){
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-        Container(
-        height: 50,
-        width: 360,
-        //margin: EdgeInsets.only(bottom: 40),
-        child: RaisedButton(
-        elevation: 5.0,
-        color: Colors.indigoAccent,
-        // shape: RoundedRectangleBorder(
-        //   borderRadius: BorderRadius.circular(30.0),
-        // ),
-        onPressed: () {
-
-
-            },
-            child: Text(
-              "Sign in with Facebook",
-              style: TextStyle(
-                color: Colors.white,
-                letterSpacing: 1.5,
-                fontSize: MediaQuery.of(context).size.height / 60,
-              ),
-            ),
-          ),
-        ),
-
-      ],
-
-    );
+  @override
+  void initState() {
+    super.initState();
   }
 
-
-  Widget _googleBtn(){
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          height: 50,
-          width: 360,
-          //margin: EdgeInsets.only(bottom: 40),
-          child: RaisedButton(
-            elevation: 5.0,
-            color: Colors.red,
-            // shape: RoundedRectangleBorder(
-            //   borderRadius: BorderRadius.circular(30.0),
-            // ),
-            onPressed: () {
-
-            },
-            child: Text(
-              "Sign in with Google",
-              style: TextStyle(
-                color: Colors.white,
-                letterSpacing: 1.5,
-                fontSize: MediaQuery.of(context).size.height / 60,
-              ),
-            ),
-          ),
-        ),
-
-      ],
-
-    );
-  }
-
-  Widget _bottomLoginSignUpBtn(){
-    return Row(
-
-     // : Row(
-        children: [
-
-          Material(
-
-            color: Colors.indigoAccent,
-            child: InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(builder: (context) => SignUp()),
-                );
-              },
-              child: const SizedBox(
-                height: kToolbarHeight,
-                width: 200,
-                child: Center(
-                  child: Text(
-                    'Sign Up',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Material(
-              color: Colors.amber,
-              child: InkWell(
-                onTap: () {
-
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(builder: (context) => Login()),
-                  );
-
-                  //print('called on tap');
-                },
-                child: const SizedBox(
-                  height: kToolbarHeight,
-                  width: double.infinity,
-                  child: Center(
-                    child: Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.black,
-                        //fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-     // ),
-
-    );
-
-  }
-
-
-  Widget _buildOrRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          margin: EdgeInsets.only(bottom: 20),
-          child: Text(
-            '- OR -',
-            style: TextStyle(
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _buildSignUpBtn() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Container(
-          padding: EdgeInsets.only(top: 10),
-          child: FlatButton(
-            onPressed: () {
-              Navigator.push(
-              context,
-              MaterialPageRoute<void>(builder: (context) => SignUp()),
-            );
-              },
-            child: RichText(
-              text: TextSpan(children: [
-                TextSpan(
-                  text: 'Do not have an account? ',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: MediaQuery.of(context).size.height / 50,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                TextSpan(
-                  text: 'Sign Up',
-                  style: TextStyle(
-                    color: Colors.yellow,
-                    fontSize: MediaQuery.of(context).size.height / 50,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
-              ]),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-
-  Widget _logoContainer(){
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-
-        Image(
-          image: AssetImage('assets/images/logo.png'),
-          alignment: Alignment.topCenter,
-          height: 200.0,
-          width: 360.0,
-
-        ),
-
-      ],
-    );
-  }
-
-  Widget _buildContainer() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-
-      children: <Widget>[
-        ClipRRect(
-          borderRadius: BorderRadius.all(
-            Radius.circular(0),
-          ),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.9,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Colors.transparent,
-              // border: Border.all(color: Colors.blue, width: 2),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(8),
-                topRight: Radius.circular(8),
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    _logoContainer(),
-                    _imageSlider(),
-                    _facebookBtn(),
-                    Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: _googleBtn()),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-
-  Widget _imageSlider(){
-    return CarouselSlider(
-      options: CarouselOptions(
-        height: 400,
-        aspectRatio: 16/9,
-        viewportFraction: 0.8,
-        initialPage: 0,
-        enableInfiniteScroll: true,
-        reverse: false,
-        autoPlay: true,
-        autoPlayInterval: Duration(seconds: 2),
-        autoPlayAnimationDuration: Duration(milliseconds: 800),
-        autoPlayCurve: Curves.fastOutSlowIn,
-        enlargeCenterPage: true,
-        scrollDirection: Axis.horizontal,
+  addMarker() async {
+    var tmp = await makeReceiptImage("");
+    markers_.add(
+      Marker(
+        markerId: MarkerId('Marker'),
+        position: LatLng(37.42796133580664, -122.085749655962),
+        infoWindow: InfoWindow(title: "title of marker"),
+        icon: BitmapDescriptor.fromBytes(tmp),
       ),
-      items: ['assets/images/slideone.png','assets/images/slider_image_two.png','assets/images/slider_image_three.png','assets/images/slider_image_five.png'].map((i) {
-        return Builder(
-          builder: (BuildContext context) {
-            return Container(
-                width: MediaQuery.of(context).size.width,
-                margin: EdgeInsets.symmetric(horizontal: 19.0),
-                decoration: BoxDecoration(
-                    color: Colors.transparent
-                ),
-                child: Image(
-                  image: AssetImage(i),
-                  alignment: Alignment.topCenter,
-                )
-            );
-          },
-        );
-      }).toList(),
-
-
     );
+    setState(() {
+      refreshFlag++;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-
-    return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Stack(
-          children: <Widget>[
-            Image(
-              image: AssetImage('assets/images/splashBack.jpg'),
-              alignment: Alignment.center,
-               height: MediaQuery.of(context).size.height,
-               width: MediaQuery.of(context).size.width,
-              fit: BoxFit.fill,
-            ),
-            Container(
-              alignment: Alignment.bottomCenter,
-              height: MediaQuery.of(context).size.height * 10.0,
-              width: MediaQuery.of(context).size.width,
-
-              child: _bottomLoginSignUpBtn(),
-
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                _buildLogo(),
-                 _buildContainer(),
-                // Padding(
-                //     padding: EdgeInsets.only(bottom: 0),
-                  //  child:
-
-              ],
-            )
-          ],
+    addMarker();
+    return Container(
+      child: GoogleMap(
+        myLocationEnabled: true,
+        markers: markers_,
+        mapType: MapType.terrain,
+        initialCameraPosition: CameraPosition(
+          target: LatLng(37.42796133580664, -122.085749655962),
+          zoom: 14.4746,
         ),
       ),
     );
   }
 }
 
+class MyHomePage extends StatefulWidget {
+  @override
+  SplashScreenState createState() => SplashScreenState();
+}
 
+class SplashScreenState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    Timer(
+        Duration(seconds: 5),
+        () => Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MyAppp())));
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        color: Colors.black,
+        child: Image(
+          image: AssetImage(
+            'assets/images/WelcomeSplash.png',
+          ),
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          fit: BoxFit.cover,
+        ));
+  }
+}

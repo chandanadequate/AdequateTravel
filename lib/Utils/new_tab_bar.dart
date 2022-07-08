@@ -29,17 +29,11 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
 
   int selectedIndex = 0;
-  //List<Widget> listWidgets = [Home(),Games(),Apps(),Movies(),Books()];
+ 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-
-        title: Text(widget.title),
-        backgroundColor: Colors.grey,
-      ),
-      //body: listWidgets[selectedIndex],
       bottomNavigationBar: ConvexAppBar.badge({3: ''},
         items: [
           TabItem(

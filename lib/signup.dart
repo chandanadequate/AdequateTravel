@@ -1,13 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'dart:math';
 import 'package:http/http.dart' as http;
-
 import 'Networking/ApiURLs.dart';
 import 'login.dart';
-
 
 void main() => runApp(SignUp());
 
@@ -21,7 +16,12 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController genderController = TextEditingController();
 
+  int gender_ = 1;
 
   Widget _backButton() {
     return InkWell(
@@ -37,7 +37,10 @@ class _SignUpState extends State<SignUp> {
               child: Icon(Icons.keyboard_arrow_left, color: Color(0xfff79c4f)),
             ),
             Text('Back',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xfff79c4f)))
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xfff79c4f)))
           ],
         ),
       ),
@@ -52,7 +55,10 @@ class _SignUpState extends State<SignUp> {
         children: <Widget>[
           Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xfff79c4f)),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Color(0xfff79c4f)),
           ),
           SizedBox(
             height: 5,
@@ -65,12 +71,12 @@ class _SignUpState extends State<SignUp> {
                   // hintStyle: TextStyle( color: Colors.white),
 
                   prefixIcon: Icon(Icons.person),
-
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),borderSide: BorderSide.none,),
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
                   fillColor: Colors.white30,
                   filled: true)),
-
         ],
       ),
     );
@@ -84,7 +90,10 @@ class _SignUpState extends State<SignUp> {
         children: <Widget>[
           Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xfff79c4f)),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Color(0xfff79c4f)),
           ),
           SizedBox(
             height: 5,
@@ -97,12 +106,12 @@ class _SignUpState extends State<SignUp> {
                   // hintStyle: TextStyle( color: Colors.white),
 
                   prefixIcon: Icon(Icons.mail),
-
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),borderSide: BorderSide.none,),
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
                   fillColor: Colors.white30,
                   filled: true)),
-
         ],
       ),
     );
@@ -116,15 +125,15 @@ class _SignUpState extends State<SignUp> {
         children: <Widget>[
           Text(
             "    Gender",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xfff79c4f)),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Color(0xfff79c4f)),
           ),
-
-
         ],
       ),
     );
   }
-
 
   Widget _entryField(String title, {bool isPassword = false}) {
     return Container(
@@ -134,7 +143,10 @@ class _SignUpState extends State<SignUp> {
         children: <Widget>[
           Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xfff79c4f)),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Color(0xfff79c4f)),
           ),
           SizedBox(
             height: 5,
@@ -142,14 +154,15 @@ class _SignUpState extends State<SignUp> {
           TextField(
               obscureText: isPassword,
               style: TextStyle(color: Colors.white),
-
               decoration: InputDecoration(
                   hintText: 'Enter Password',
                   //hintStyle: TextStyle( color: Colors.white),
 
                   prefixIcon: Icon(Icons.lock_rounded),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),borderSide: BorderSide.none,),
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
                   fillColor: Colors.white30,
                   filled: true)),
         ],
@@ -159,30 +172,37 @@ class _SignUpState extends State<SignUp> {
 
   Widget _submitButton() {
     return Container(
-      width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.symmetric(vertical: 15),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          // boxShadow: <BoxShadow>[
-          //   BoxShadow(
-          //       color: Colors.grey.shade200,
-          //       offset: Offset(2, 4),
-          //       blurRadius: 5,
-          //       spreadRadius: 2)
-          // ],
-          gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-
-              colors: [Color(0xFF2196F3),Color(0xFF2196F3)])),
-      child: Text(
-        'Sign Up Now',
-        style: TextStyle(fontSize: 20, color: Colors.white),
-      ),
-    );
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.symmetric(vertical: 15),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            // boxShadow: <BoxShadow>[
+            //   BoxShadow(
+            //       color: Colors.grey.shade200,
+            //       offset: Offset(2, 4),
+            //       blurRadius: 5,
+            //       spreadRadius: 2)
+            // ],
+            gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [Color(0xFF2196F3), Color(0xFF2196F3)])),
+        child: FlatButton(
+          color: Color(0xFF2196F3),
+          onPressed: () {
+            SignUpuser(
+                emailController.text.trim(),
+                passwordController.text.trim(),
+                genderController.text.trim(),
+                nameController.text.trim());
+          },
+          child: Text(
+            'Sign In Now',
+            style: TextStyle(fontSize: 20, color: Colors.white),
+          ),
+        ));
   }
-
 
   // Widget _title() {
   //   return RichText(
@@ -209,11 +229,85 @@ class _SignUpState extends State<SignUp> {
 
   Widget _emailPasswordWidget() {
     return Column(
-
       children: <Widget>[
         _entryFieldUserName("    User Name"),
         _entryFieldMail("    Email"),
         _entryField("    Password", isPassword: true),
+      ],
+    );
+  }
+
+  _RadioBtn() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Expanded(
+          flex: 1,
+          child: Row(
+            children: [
+              Radio(
+                  activeColor: Colors.orange,
+                  value: 1,
+                  groupValue: gender_,
+                  onChanged: (index) {
+                    setState(() {
+                      gender_ = 1;
+                    });
+                  }),
+              Expanded(
+                  child: Text('Male',
+                      style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 15,
+                          color: Colors.white)))
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Row(
+            children: [
+              Radio(
+                  activeColor: Colors.orange,
+                  value: 2,
+                  groupValue: gender_,
+                  onChanged: (index) {
+                    setState(() {
+                      gender_ = 2;
+                    });
+                  }),
+              Expanded(
+                  child: Text('Female',
+                      style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 15,
+                          color: Colors.white)))
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Row(
+            children: [
+              Radio(
+                  activeColor: Colors.orange,
+                  value: 3,
+                  groupValue: gender_,
+                  onChanged: (index) {
+                    setState(() {
+                      gender_ = 3;
+                    });
+                  }),
+              Expanded(
+                child: Text('Other',
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 15,
+                        color: Colors.white)),
+              )
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -230,17 +324,15 @@ class _SignUpState extends State<SignUp> {
               Image(
                 image: AssetImage('assets/images/back_screen.png'),
                 alignment: Alignment.center,
-                 height: MediaQuery.of(context).size.height,
-                 width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
                 fit: BoxFit.fill,
               ),
-
               Positioned(
                   top: -height * .15,
                   right: -MediaQuery.of(context).size.width * .4,
                   child: BezierContainer()),
               Container(
-
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: SingleChildScrollView(
                   child: Column(
@@ -253,9 +345,7 @@ class _SignUpState extends State<SignUp> {
                       SizedBox(height: 10),
                       _emailPasswordWidget(),
                       SizedBox(height: 2),
-
                       _GenderText(),
-
                       _RadioBtn(),
                       SizedBox(height: 20),
                       _submitButton(),
@@ -269,116 +359,80 @@ class _SignUpState extends State<SignUp> {
         ));
   }
 
+  Future<dynamic> SignUpuser(
+      String email, String password, String gender, String name) async {
+    var url = MyVector().baseUrl + ApiEndPoints().Register;
 
-  Future<dynamic> SignUpuser(String email,String password, String gender, String name) async{
-    var url = MyVector().baseUrl+ApiEndPoints().Register;
-
-    var data = json.encode(
-        {
-          apiParameters().email: email,
-          apiParameters().password:password,
-          apiParameters().loginDevice: 1.toString(),
-          apiParameters().name: name
-        });
-    var response = await http.post(url, headers: {header().contentType: header().applicationjson},body: data);
+    var data = json.encode({
+      apiParameters().email: email,
+      apiParameters().password: password,
+      apiParameters().loginDevice: 1.toString(),
+      apiParameters().name: name,
+      apiParameters().gender: gender_
+    });
+    var response = await http.post(Uri.parse(url),
+        headers: {header().contentType: header().applicationjson}, body: data);
     if (response.statusCode == 200) {
-      var newBody = json.decode(response.body);
-     // bodyJson =  login_Model.fromJson(newBody);
+      // var newBody = json.decode(response.body);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Login()),
+      Widget okButton = TextButton(
+        child: Text("OK"),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Login()),
+          );
+        },
       );
 
+      // set up the AlertDialog
+      AlertDialog alert = AlertDialog(
+        title: Text("Successfully Registered"),
+        content:
+            Text("You have successfully registered, Kindly login to continue"),
+        actions: [
+          okButton,
+        ],
+      );
+
+      // show the dialog
+      showDialog(
+        //context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
     } else {
       print(response.statusCode);
     }
   }
-
-
-
 }
 
-
 @override
-Widget _RadioBtn(){
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceAround,
-    children: [
-      Expanded(
-        flex: 1,
-        child: Row(
-          children: [
-            Radio(
-
-                value: 1, groupValue: 'null', onChanged: (index) {
-
-
-            }),
-            Expanded(child: Text('Male',
-                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 15, color: Colors.white)))
-          ],
-        ),
-      ),
-      Expanded(
-        flex: 1,
-        child: Row(
-          children: [
-            Radio(
-                value: 1, groupValue: 'null', onChanged: (index) {}),
-            Expanded(child: Text('Female',
-                style: TextStyle(fontWeight: FontWeight.normal, fontSize: 15, color: Colors.white)))
-          ],
-        ),
-      ),
-      Expanded(
-        flex: 1,
-        child: Row(
-          children: [
-            Radio(
-                value: 1, groupValue: 'null', onChanged: (index) {}),
-            Expanded(
-              child: Text('Other',
-                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 15, color: Colors.white)),
-            )
-          ],
-        ),
-      ),
-    ],
-  );
-}
-
-
-@override
-Widget _userImage(){
+Widget _userImage() {
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
-
       Image(
         image: AssetImage('assets/images/login_user.png'),
         alignment: Alignment.topCenter,
         fit: BoxFit.fill,
       ),
-
     ],
   );
 }
 
 @override
-Widget _logoContainer(){
+Widget _logoContainer() {
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
-
       Image(
         image: AssetImage('assets/images/logo.png'),
         alignment: Alignment.topCenter,
         height: 100.0,
         width: 360.0,
-
       ),
-
     ],
   );
 }
@@ -387,31 +441,24 @@ class BezierContainer extends StatelessWidget {
   const BezierContainer({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: Stack(
           children: <Widget>[
-
             Container(
               alignment: Alignment.bottomCenter,
               height: MediaQuery.of(context).size.height * 10.0,
               width: MediaQuery.of(context).size.width,
 
               // child: _bottomLoginSignUpBtn(),
-
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 // _buildLoginPage()
-
-
-
               ],
             )
-
           ],
         ),
       ),

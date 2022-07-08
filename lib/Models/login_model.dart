@@ -65,7 +65,7 @@ class login_Model {
     about = json['about'];
     //creditBalance = json['creditBalance'];
     code = json['code'];
-    msg = json['msg'];
+    //msg = json['msg'];
     data = json['data'];
   }
 
@@ -89,7 +89,7 @@ class login_Model {
     data['about'] = this.about;
     data['creditBalance'] = this.creditBalance;
     data['code'] = this.code;
-    data['msg'] = this.msg;
+    // data['msg'] = this.msg;
     data['data'] = this.data;
     return data;
   }

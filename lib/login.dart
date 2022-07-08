@@ -1,29 +1,19 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 import 'dart:convert';
-import 'dart:convert';
-
-
-import 'dart:io';
-
-
-
-import 'package:adequate_travel_app/Models/login_model.dart';
-import 'package:adequate_travel_app/login.dart';
-import 'package:adequate_travel_app/tab_bar.dart';
+import 'package:adequate_travel_app/Utils/alert.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
-import 'package:json_annotation/json_annotation.dart';
-import 'package:toast/toast.dart';
-import 'dart:math';
+import 'package:adequate_travel_app/Models/login_model.dart';
+import 'package:adequate_travel_app/menu_screen.dart';
 
-import 'package:adequate_travel_app/Networking/WebRequester.dart';
 import 'package:adequate_travel_app/Networking/ApiURLs.dart';
-import 'Utils/new_tab_bar.dart';
+
 import 'forgot_password.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-
+import 'main_screen.dart';
 
 void main() => runApp(Login());
 
@@ -34,23 +24,39 @@ class Login extends StatefulWidget {
 
   @override
   _LoginPageState createState() => _LoginPageState();
-
 }
 
 class _LoginPageState extends State<Login> {
-
+  // AnimationController controller;
+  bool isLoading = false;
   var bodyJson = login_Model();
-
+  bool _isChecked = false;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  @override
+  void initState() {
+    // controller = AnimationController(
+    //   vsync: this,
+    //   duration: const Duration(seconds: 5),
+    // )..addListener(() {
+    //     setState(() {});
+    // });
 
+    // controller.repeat(reverse: true);
+
+    super.initState();
+    _loadUserEmailPassword();
+  }
 
   Widget _backButton() {
     return InkWell(
       onTap: () {
-        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute<void>(builder: (context) => MyAppp()),
+        );
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10),
@@ -61,13 +67,29 @@ class _LoginPageState extends State<Login> {
               child: Icon(Icons.keyboard_arrow_left, color: Color(0xfff79c4f)),
             ),
             Text('Back',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xfff79c4f)))
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xfff79c4f)))
           ],
         ),
       ),
     );
   }
 
+  void _handleRemeberme(bool value) {
+    _isChecked = value;
+    SharedPreferences.getInstance().then(
+      (prefs) {
+        prefs.setBool("remember_me", value);
+        prefs.setString('email', nameController.text);
+        prefs.setString('password', passwordController.text);
+      },
+    );
+    setState(() {
+      _isChecked = value;
+    });
+  }
 
   Widget _entryFieldMail(String title, {bool isMail = false}) {
     return Container(
@@ -77,33 +99,34 @@ class _LoginPageState extends State<Login> {
         children: <Widget>[
           Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xfff79c4f)),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Color(0xfff79c4f)),
           ),
           SizedBox(
             height: 5,
           ),
           TextField(
-            controller: nameController,
+              controller: nameController,
               obscureText: isMail,
               style: TextStyle(color: Colors.white),
-
-
               decoration: InputDecoration(
                   hintText: 'Enter Email',
-                 // hintStyle: TextStyle( color: Colors.white),
+
+                  // hintStyle: TextStyle( color: Colors.white),
 
                   prefixIcon: Icon(Icons.mail),
-
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),borderSide: BorderSide.none,),
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
                   fillColor: Colors.white30,
                   filled: true)),
-
         ],
       ),
     );
   }
-
 
   Widget _entryField(String title, {bool isPassword = false}) {
     return Container(
@@ -113,7 +136,10 @@ class _LoginPageState extends State<Login> {
         children: <Widget>[
           Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xfff79c4f)),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Color(0xfff79c4f)),
           ),
           SizedBox(
             height: 5,
@@ -123,13 +149,14 @@ class _LoginPageState extends State<Login> {
               obscureText: isPassword,
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
-
                   hintText: 'Enter Password',
                   //hintStyle: TextStyle( color: Colors.white),
 
                   prefixIcon: Icon(Icons.lock_rounded),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),borderSide: BorderSide.none,),
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
                   fillColor: Colors.white30,
                   filled: true)),
         ],
@@ -154,26 +181,27 @@ class _LoginPageState extends State<Login> {
           gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
+              colors: [Color(0xFF2196F3), Color(0xFF2196F3)])),
+      child: FlatButton(
+        color: Color(0xFF2196F3),
+        onPressed: () {
+          setState(() {
+            isLoading = true;
+          });
 
-              colors: [Color(0xFF2196F3),Color(0xFF2196F3)])),
-    child: FlatButton(
-      color: Color(0xFF2196F3),
-    onPressed: () {
-
-      loginuser(nameController.text.trim(),passwordController.text.trim());
-
-
-
-
-
-    },
-
-      child: Text(
-        'Sign In Now',
-        style: TextStyle(fontSize: 20, color: Colors.white),
-
+          if (nameController.text != null && passwordController.text != null) {
+            loginuser(nameController.text.trim(),
+                passwordController.text.trim(), _isChecked);
+          } else {
+            Alerti.showAlertDialog(
+                context, 'Alert', 'Please Provide email and Password');
+          }
+        },
+        child: Text(
+          'Sign In Now',
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
       ),
-    ),
     );
   }
 
@@ -194,7 +222,6 @@ class _LoginPageState extends State<Login> {
               ),
             ),
           ),
-
           SizedBox(
             width: 10,
           ),
@@ -254,7 +281,6 @@ class _LoginPageState extends State<Login> {
 
   Widget _emailPasswordWidget() {
     return Column(
-
       children: <Widget>[
         _entryFieldMail("    Email"),
         _entryField("    Password", isPassword: true),
@@ -262,8 +288,31 @@ class _LoginPageState extends State<Login> {
     );
   }
 
+  void _loadUserEmailPassword() async {
+    print("Load Email");
+    try {
+      SharedPreferences _prefs = await SharedPreferences.getInstance();
+      var _email = _prefs.getString("email") ?? "";
+      var _password = _prefs.getString("password") ?? "";
+      var _remeberMe = _prefs.getBool("remember_me") ?? false;
+
+      print(_remeberMe);
+      print(_email);
+      print(_password);
+      if (_remeberMe) {
+        setState(() {
+          _isChecked = true;
+        });
+        nameController.text = _email ?? "";
+        passwordController.text = _password ?? "";
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
-  Widget _RadioBtn(){
+  Widget _RadioBtn() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -271,15 +320,20 @@ class _LoginPageState extends State<Login> {
           flex: 1,
           child: Row(
             children: [
-              Radio(
-                  // value:radioController.text,
-
-
-                  value: 1, groupValue: '', onChanged: (radioController) {
-
-              }),
-              Expanded(child: Text('Keep me Signed In',
-                  style: TextStyle(fontWeight: FontWeight.normal, fontSize: 15, color: Color(0xfff79c4f))))
+              Checkbox(
+                  activeColor: Colors.orange,
+                  value: _isChecked,
+                  onChanged: (index) {
+                    setState(() {
+                      _isChecked = !_isChecked;
+                    });
+                  }),
+              Expanded(
+                  child: Text('Keep me Signed In',
+                      style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 15,
+                          color: Color(0xfff79c4f))))
             ],
           ),
         ),
@@ -288,7 +342,7 @@ class _LoginPageState extends State<Login> {
   }
 
   @override
-  Widget _userImage(){
+  Widget _userImage() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -299,7 +353,6 @@ class _LoginPageState extends State<Login> {
       ],
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -313,20 +366,16 @@ class _LoginPageState extends State<Login> {
               Image(
                 image: AssetImage('assets/images/back_screen.png'),
                 alignment: Alignment.center,
-               
-               height: MediaQuery.of(context).size.height,
-               width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
                 fit: BoxFit.fill,
               ),
-
               Positioned(
                   top: -height * .15,
                   right: -MediaQuery.of(context).size.width * .4,
                   child: BezierContainer()),
               Container(
-
                 padding: EdgeInsets.symmetric(horizontal: 20),
-              
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -347,43 +396,81 @@ class _LoginPageState extends State<Login> {
                 ),
               ),
               Positioned(top: 40, left: 0, child: _backButton()),
+              (isLoading)
+                  ? Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        color: Colors.black45,
+                        child: Center(
+                          child:
+                              CircularProgressIndicator(color: Colors.orange),
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
             ],
           ),
         ));
   }
 
+  Future<dynamic> loginuser(String email, String password, bool ischeck) async {
+    isLoading = true;
+    var url = MyVector().baseUrl + ApiEndPoints().Login;
+    var data = json.encode({
+      apiParameters().email: email,
+      apiParameters().password: password,
+      apiParameters().loginDevice: 1.toString()
+    });
 
-  Future<dynamic> loginuser(String email,String password) async{
-    var url = MyVector().baseUrl+ApiEndPoints().Login;
+    var response = await http.post(Uri.parse(url),
+        headers: {header().contentType: header().applicationjson}, body: data);
+    isLoading = false;
 
-    var data = json.encode(
-        {
-          apiParameters().email: email,
-          apiParameters().password:password,
-          apiParameters().loginDevice: 1.toString()
-        });
-    var response = await http.post(url, headers: {header().contentType: header().applicationjson},body: data);
-    if (response.statusCode == 200) {
-      var newBody = json.decode(response.body);
-       bodyJson =  login_Model.fromJson(newBody);
+    setState(() {
+      if (response.statusCode == 200) {
+        var newBody = json.decode(response.body);
+        bodyJson = login_Model.fromJson(newBody);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => newTabBar()),
-      );
+        String myId = bodyJson.id.toString();
+        String nameOfUser = bodyJson.name.toString();
+        String userImage = bodyJson.profilePicture.toString();
+        String token = bodyJson.token.toString();
+        print(token);
 
-    } else {
-      print(response.statusCode);
-    }
+        if (ischeck) {
+          SharedPreferences.getInstance().then(
+            (prefs) {
+              prefs.setString('email', email);
+              prefs.setString('password', password);
+              prefs.setString('MyID', myId);
+              prefs.setString('userImage', userImage);
+              prefs.setString('Name', nameOfUser);
+              prefs.setString('token', token);
+            },
+          );
+        }
+
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => MenuScreen(
+                id: bodyJson.id,
+                imageUrl: bodyJson.profilePicture,
+                NameUser: bodyJson.name)));
+      } else {
+        print(response.statusCode);
+        Alerti.showAlertDialog(context, 'Alert', 'Something went wrong');
+      }
+    });
   }
 }
 
 @override
-Widget _logoContainer(){
+Widget _logoContainer() {
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
-
       Image(
         image: AssetImage('assets/images/logo.png'),
         alignment: Alignment.topCenter,
@@ -394,12 +481,10 @@ Widget _logoContainer(){
   );
 }
 
-
 class BezierContainer extends StatelessWidget {
   const BezierContainer({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -412,8 +497,7 @@ class BezierContainer extends StatelessWidget {
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-              ],
+              children: <Widget>[],
             )
           ],
         ),
@@ -422,24 +506,13 @@ class BezierContainer extends StatelessWidget {
   }
 }
 
+mixin InputValidationMixin {
+  bool isPasswordValid(String password) => password.length == 6;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  bool isEmailValid(String email) {
+    Pattern pattern =
+        '^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))';
+    RegExp regex = new RegExp(pattern);
+    return regex.hasMatch(email);
+  }
+}

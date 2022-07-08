@@ -1,12 +1,13 @@
+import 'dart:convert';
+
+import 'package:adequate_travel_app/Networking/ApiURLs.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:http/http.dart' as http;
-import 'package:toast/toast.dart';
-import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'login.dart';
-
-
+import 'login.dart';
 
 void main() => runApp(ForgotPassword());
 
@@ -20,6 +21,8 @@ class ForgotPassword extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPassword> {
+  TextEditingController nameController = TextEditingController();
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -34,13 +37,15 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
               child: Icon(Icons.keyboard_arrow_left, color: Color(0xfff79c4f)),
             ),
             Text('Back',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xfff79c4f)))
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xfff79c4f)))
           ],
         ),
       ),
     );
   }
-
 
   Widget _entryFieldMail(String title, {bool isMail = false}) {
     return Container(
@@ -50,12 +55,16 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
         children: <Widget>[
           Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xfff79c4f)),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Color(0xfff79c4f)),
           ),
           SizedBox(
             height: 5,
           ),
           TextField(
+              controller: nameController,
               obscureText: isMail,
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
@@ -63,14 +72,15 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
                   // hintStyle: TextStyle( color: Colors.white),
                   prefixIcon: Icon(Icons.mail),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),borderSide: BorderSide.none,),
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
                   fillColor: Colors.white30,
                   filled: true)),
         ],
       ),
     );
   }
-
 
   Widget _submitButton() {
     return Container(
@@ -82,11 +92,16 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
           gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-
-              colors: [Color(0xFF2196F3),Color(0xFF2196F3)])),
-      child: Text(
-        'Send Verification',
-        style: TextStyle(fontSize: 20, color: Colors.white),
+              colors: [Color(0xFF2196F3), Color(0xFF2196F3)])),
+      child: FlatButton(
+        color: Color(0xFF2196F3),
+        onPressed: () {
+          ForgotPassword(nameController.text.trim());
+        },
+        child: Text(
+          'Send Verification',
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
       ),
     );
   }
@@ -108,7 +123,6 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
               ),
             ),
           ),
-
           SizedBox(
             width: 10,
           ),
@@ -116,8 +130,6 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
       ),
     );
   }
-
-
 
   Widget _createAccountLabel() {
     return InkWell(
@@ -143,9 +155,8 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
             ),
             Text(
               'Sign In',
-
               style: TextStyle(
-                decoration: TextDecoration.underline ,
+                  decoration: TextDecoration.underline,
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w600),
@@ -153,7 +164,6 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
             // SizedBox(
             //   width: 5,
             // ),
-
           ],
         ),
       ),
@@ -162,7 +172,6 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
 
   Widget _emailPasswordWidget() {
     return Column(
-
       children: <Widget>[
         _entryFieldMail("    Email"),
       ],
@@ -185,17 +194,14 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
                 width: double.infinity,
                 fit: BoxFit.fill,
               ),
-
               Positioned(
                   top: -height * .15,
                   right: -MediaQuery.of(context).size.width * .4,
                   child: BezierContainer()),
               Container(
-
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: SingleChildScrollView(
                   child: Column(
-
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -212,9 +218,7 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
                       SizedBox(height: 50),
                       _emailPasswordWidget(),
                       SizedBox(height: 20),
-
                       _submitButton(),
-
                       _divider(),
                       // _facebookButton(),
                       // SizedBox(height: height * .055),
@@ -228,68 +232,72 @@ class _ForgotPasswordPageState extends State<ForgotPassword> {
           ),
         ));
   }
+
+  Future<dynamic> ForgotPassword(String email) async {
+    var url = MyVector().baseUrl + ApiEndPoints().GetNewPassword;
+
+    var data = json.encode({
+      apiParameters().email: email,
+    });
+    var response = await http.post(Uri.parse(url),
+        headers: {header().contentType: header().applicationjson}, body: data);
+    if (response.statusCode == 200) {
+      var newBody = json.decode(response.body);
+
+      //bodyJson = login_Model.fromJson(newBody);
+
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => MenuScreen() ),
+      // );
+      //
+
+    } else {
+      print(response.statusCode);
+    }
+  }
 }
 
 @override
-Widget _logoContainer(){
+Widget _logoContainer() {
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
-
       Image(
         image: AssetImage('assets/images/logo.png'),
         alignment: Alignment.topCenter,
         height: 150,
         width: 360,
-
       ),
-
     ],
   );
 }
-
 
 class BezierContainer extends StatelessWidget {
   const BezierContainer({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         body: Stack(
           children: <Widget>[
-
             Container(
               alignment: Alignment.bottomCenter,
               height: MediaQuery.of(context).size.height * 10.0,
               width: MediaQuery.of(context).size.width,
 
               // child: _bottomLoginSignUpBtn(),
-
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 // _buildLoginPage()
-
-
-
               ],
             )
-
           ],
         ),
       ),
     );
   }
 }
-
-
-
-
-
-
-
-
-
